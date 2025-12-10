@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "Credit Application Service - Tests",
+    "_postman_id": "b2d9a6d3-0000-4000-8000-000000000000",
+    "description": "Colección para probar endpoints (register, login y endpoints protegidos por role). Ajustar bodies/paths según implementación.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/actuator/health"
+        },
+        "description": "Comprueba que la app esté levantada"
+      },
+      "response": []
+    },
+    {
+      "name": "Register User (ROLE_USER)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"password1\",\n  \"roles\": [\"ROLE_USER\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/register"
+        },
+        "description": "Registra un usuario. Ajusta campos si tu DTO difiere."
+      },
+      "response": []
+    },
+    {
+      "name": "Register Admin (ROLE_ADMIN)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"adminpass\",\n  \"roles\": [\"ROLE_ADMIN\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/register"
+        },
+        "description": "Registra un usuario admin si el endpoint lo permite."
+      },
+      "response": []
+    },
+    {
+      "name": "Login User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"password1\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login"
+        },
+        "description": "Hace login y extrae token a la variable `access_token`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "try {",
+              "  const res = pm.response.json();",
+              "  const token = res.token || res.accessToken || res.access_token || (res.data && (res.data.token || res.data.accessToken));",
+              "  if (token) {",
+              "    pm.environment.set('access_token', token);",
+              "    console.log('access_token saved');",
+              "    pm.test('Token extracted', () => pm.expect(token).to.be.ok);",
+              "  } else {",
+              "    pm.test('No token found in response', () => pm.expect.fail('No token field found'));",
+              "  }",
+              "} catch (e) {",
+              "  pm.test('Response not JSON or other error', () => pm.expect.fail(e.toString()));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Login Admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"adminpass\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login"
+        },
+        "description": "Login admin (si registraste admin)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "try {",
+              "  const res = pm.response.json();",
+              "  const token = res.token || res.accessToken || res.access_token || (res.data && (res.data.token || res.data.accessToken));",
+              "  if (token) { pm.environment.set('access_token', token); pm.test('Token extracted', () => pm.expect(token).to.be.ok); }",
+              "  else { pm.test('No token found in response', () => pm.expect.fail('No token field found')); }",
+              "} catch (e) { pm.test('Response not JSON or other error', () => pm.expect.fail(e.toString())); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "GET /api/credits (USER)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/credits"
+        },
+        "description": "Listado de créditos - requiere token. Ajustar path real."
+      },
+      "response": []
+    },
+    {
+      "name": "POST /api/credits (USER) - Crear crédito",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": 123,\n  \"monto\": 5000,\n  \"plazo\": 12\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/credits"
+        },
+        "description": "Crear crédito. Ajustar body y path según controlador real."
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/credits/:id (USER)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/credits/1"
+        },
+        "description": "Obtener crédito por id. Cambiar id si es necesario."
+      },
+      "response": []
+    },
+    {
+      "name": "PUT /api/credits/:id (USER)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monto\": 6000,\n  \"plazo\": 18\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/credits/1"
+        },
+        "description": "Actualizar crédito (si el endpoint existe)."
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE /api/credits/:id (ADMIN)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/credits/1"
+        },
+        "description": "Eliminar crédito - requiere role admin según configuración de seguridad."
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/admin/stats (ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/stats"
+        },
+        "description": "Endpoint de administración de ejemplo. Ajustar path real."
+      },
+      "response": []
+    }
+  ]
+}
