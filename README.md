@@ -188,7 +188,14 @@ The included collection has example requests for CRUD endpoints and to separate 
 - In production use vault/secret manager and TLS.
 - Review CORS, request size limits and rate limiting policies.
 
+## Diagram use case credit application with risk evaluation
 ![img.png](img.png)
+
+## Diagram risk-central-mock-service interaction
+![img_1.png](img_1.png)
+
+## Diagram architecture hexagonal
+![img_2.png](img_2.png)
 
 ---  
 End 
