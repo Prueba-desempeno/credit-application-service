@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: coopdb
+      POSTGRES_USER: coop
+      POSTGRES_PASSWORD: coop_pass
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  risk-central-mock:
+    build: .
+    command: java -jar /app/app.jar --spring.profiles.active=riskcentral
+    ports:
+      - '9091:9091'
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/coopdb
+      - SPRING_DATASOURCE_USERNAME=coop
+      - SPRING_DATASOURCE_PASSWORD=coop_pass
+
+  credit-app:
+    build: .
+    command: java -jar /app/app.jar
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+      - risk-central-mock
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/coopdb
+      - SPRING_DATASOURCE_USERNAME=coop
+      - SPRING_DATASOURCE_PASSWORD=coop_pass
+      - RISK_CENTRAL_URL=http://risk-central-mock:9091
+      - JWT_SECRET=super-secret-example-please-change
+
+volumes:
+  db_data:

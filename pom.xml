@@ -85,6 +85,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- H2 for tests: embedded database to allow SpringBootTest to start without external DB -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JSON Web Token (jjwt) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -163,6 +170,15 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <!-- Cambia a la clase que quieres que se ejecute en esta imagen -->
+                    <mainClass>com.creditapplicationservice.coopcredit.CreditAppserviceApplication</mainClass>
+                </configuration>
+            </plugin>
             <!-- Compiler plugin (Java 17 and annotation processors) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
