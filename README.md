@@ -188,5 +188,7 @@ The included collection has example requests for CRUD endpoints and to separate 
 - In production use vault/secret manager and TLS.
 - Review CORS, request size limits and rate limiting policies.
 
+![img.png](img.png)
+
 ---  
 End 
