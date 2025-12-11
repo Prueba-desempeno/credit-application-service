@@ -12,15 +12,14 @@ services:
 
   risk-central-mock:
     build: .
-    command: java -jar /app/app.jar --spring.profiles.active=riskcentral
+    # Forzamos el arranque de la clase Main del Mock
+    command: java -cp /app/app.jar -Dloader.main=com.creditapplicationservice.coopcredit.riskcentral.RiskCentralMockApplication org.springframework.boot.loader.launch.JarLauncher
     ports:
       - '9091:9091'
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/coopdb
-      - SPRING_DATASOURCE_USERNAME=coop
-      - SPRING_DATASOURCE_PASSWORD=coop_pass
+      - SERVER_PORT=9091
 
   credit-app:
     build: .
@@ -34,7 +33,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/coopdb
       - SPRING_DATASOURCE_USERNAME=coop
       - SPRING_DATASOURCE_PASSWORD=coop_pass
+      # Aseguramos que cree las tablas para la demo
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # URL interna de docker
       - RISK_CENTRAL_URL=http://risk-central-mock:9091
       - JWT_SECRET=super-secret-example-please-change
 
