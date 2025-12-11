@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b2d9a6d3-0000-4000-8000-000000000001",
     "name": "CoopCredit - Hexagonal Demo",
-    "description": "Flujo completo de prueba para CoopCredit.\n\nOrden de ejecución sugerido:\n1. Auth - Registers (Admin, Afiliado, Analista)\n2. Setup - Crear Afiliados (Como Admin)\n3. Créditos - Casos de prueba (Fallo por antigüedad y Éxito)\n4. Evaluación - (Como Analista)",
+    "description": "Flujo completo de prueba para CoopCredit.\n\nOrden de ejecución sugerido:\n1. Auth - Registers (Admin, Afiliado, Analista)\n2. Setup - Crear Afiliados (Como Admin)\n3. Créditos - Casos de prueba (Fallo por antigüedad y Éxito)\n4. Evaluación - (Como Analista)\n5. Observabilidad - Métricas y Health",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -419,6 +419,107 @@
               ]
             },
             "description": "Requiere login como ANALISTA (analistaPedro).\nEvaluará el riesgo y devolverá OK.\n(Nota: Requiere mock server de riesgo activo)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Actuator - Observabilidad",
+      "item": [
+        {
+          "name": "5.1 Health Check (BD)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            },
+            "description": "Muestra estado UP y detalles de conexión a base de datos y disco."
+          },
+          "response": []
+        },
+        {
+          "name": "5.2 Info del Servicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actuator",
+                "info"
+              ]
+            },
+            "description": "Muestra información estática del servicio (Nombre, Versión)."
+          },
+          "response": []
+        },
+        {
+          "name": "5.3 Métricas HTTP (Rendimiento)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/metrics/http.server.requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actuator",
+                "metrics",
+                "http.server.requests"
+              ]
+            },
+            "description": "Muestra estadísticas reales de tiempos de respuesta y códigos de estado HTTP."
+          },
+          "response": []
+        },
+        {
+          "name": "5.4 Catálogo de Métricas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/metrics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actuator",
+                "metrics"
+              ]
+            },
+            "description": "Lista todas las métricas disponibles en el sistema."
+          },
+          "response": []
+        },
+        {
+          "name": "5.5 Micrometer (Prometheus)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/prometheus",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            },
+            "description": "Expone métricas en formato texto plano para ser consumidas por Prometheus."
           },
           "response": []
         }
