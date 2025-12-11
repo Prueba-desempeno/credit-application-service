@@ -3,11 +3,6 @@
 -- Creación de tablas base
 -- ================================
 
-Affiliate.java
-│ │ │ │ │ ├── CreditApplication.java
-│ │ │ │ │ └── RiskEvaluation.java
-
-
 -- ==== TABLA ROLES ====
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,

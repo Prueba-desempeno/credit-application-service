@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/api/affiliates/**").hasAnyRole("ADMIN")
+                .requestMatchers("/api/credit-applications/*/evaluate").hasAnyRole("ANALISTA", "ADMIN")
                 .requestMatchers("/api/credit-applications/**").hasAnyRole("AFILIADO", "ANALISTA", "ADMIN")
                 .anyRequest().authenticated()
             )

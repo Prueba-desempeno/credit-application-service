@@ -1,0 +1,440 @@
+{
+  "info": {
+    "_postman_id": "b2d9a6d3-0000-4000-8000-000000000001",
+    "name": "CoopCredit - Hexagonal Demo",
+    "description": "Flujo completo de prueba para CoopCredit.\n\nOrden de ejecución sugerido:\n1. Auth - Registers (Admin, Afiliado, Analista)\n2. Setup - Crear Afiliados (Como Admin)\n3. Créditos - Casos de prueba (Fallo por antigüedad y Éxito)\n4. Evaluación - (Como Analista)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Autenticación & Usuarios",
+      "item": [
+        {
+          "name": "1.1 Register ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"adminMaster\",\n  \"password\": \"123\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea el usuario administrador necesario para registrar afiliados."
+          },
+          "response": []
+        },
+        {
+          "name": "1.2 Login ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"access_token\", jsonData.token);",
+                  "console.log(\"Token de ADMIN guardado\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"adminMaster\",\n  \"password\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Loguea al admin y guarda el token automáticamente."
+          },
+          "response": []
+        },
+        {
+          "name": "1.3 Register AFILIADO",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"clienteJuan\",\n  \"password\": \"123\",\n  \"role\": \"AFILIADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea un usuario con rol AFILIADO (quien pide el crédito)."
+          },
+          "response": []
+        },
+        {
+          "name": "1.4 Register ANALISTA",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"analistaPedro\",\n  \"password\": \"123\",\n  \"role\": \"ANALISTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea un usuario con rol ANALISTA (quien evalúa el riesgo)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Genérico (Cambiar Body)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"access_token\", jsonData.token);",
+                  "console.log(\"Token actualizado\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"clienteJuan\",\n  \"password\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usa este request para cambiar de usuario rápidamente. Cambia el body a 'clienteJuan' o 'analistaPedro' según necesites."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Configuración (Admin)",
+      "item": [
+        {
+          "name": "2.1 Crear Afiliado NUEVO (Para fallar)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"10001\",\n  \"name\": \"Pepito Nuevo\",\n  \"salary\": 2000000.0,\n  \"affiliationDate\": \"2025-12-01\" \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/affiliates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "affiliates"
+              ]
+            },
+            "description": "Requiere Token de ADMIN.\nCrea un afiliado con fecha reciente para probar la regla de rechazo por antigüedad."
+          },
+          "response": []
+        },
+        {
+          "name": "2.2 Crear Afiliado ANTIGUO (Para éxito)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"99999\",\n  \"name\": \"Señor Antiguo\",\n  \"salary\": 5000000.0,\n  \"affiliationDate\": \"2020-01-01\" \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/affiliates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "affiliates"
+              ]
+            },
+            "description": "Requiere Token de ADMIN.\nCrea un afiliado con mucha antigüedad para que pase las reglas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Solicitudes Crédito (Afiliado)",
+      "item": [
+        {
+          "name": "3.1 Solicitar Crédito (Falla por Antigüedad)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"affiliateId\": 1,\n  \"amount\": 1000000,\n  \"termMonths\": 12,\n  \"interestRate\": 2.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit-applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "credit-applications"
+              ]
+            },
+            "description": "Requiere Token de AFILIADO (Login como clienteJuan).\nDebe fallar (422) porque el afiliado ID 1 es muy nuevo."
+          },
+          "response": []
+        },
+        {
+          "name": "3.2 Solicitar Crédito (Exitoso)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"affiliateId\": 2,\n  \"amount\": 2000000,\n  \"termMonths\": 12,\n  \"interestRate\": 1.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit-applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "credit-applications"
+              ]
+            },
+            "description": "Requiere Token de AFILIADO.\nDebe pasar (200 OK - PENDIENTE) usando el afiliado ID 2 (Antiguo)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Evaluación (Analista)",
+      "item": [
+        {
+          "name": "4.1 Intento Prohibido (Como Afiliado)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit-applications/1/evaluate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "credit-applications",
+                "1",
+                "evaluate"
+              ]
+            },
+            "description": "Si usas el token de 'clienteJuan', esto debe dar 403 FORBIDDEN."
+          },
+          "response": []
+        },
+        {
+          "name": "4.2 Evaluar Crédito (Exitoso)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit-applications/1/evaluate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "credit-applications",
+                "1",
+                "evaluate"
+              ]
+            },
+            "description": "Requiere login como ANALISTA (analistaPedro).\nEvaluará el riesgo y devolverá OK.\n(Nota: Requiere mock server de riesgo activo)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -1,66 +1,56 @@
 package com.creditapplicationservice.coopcredit.infraestructure.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.creditapplicationservice.coopcredit.infraestructure.persistence.entity.UserEntity;
+import com.creditapplicationservice.coopcredit.infraestructure.persistence.repository.UserJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-    // Simulación de base de datos en memoria
-    private final Map<String, UserRecord> users = new ConcurrentHashMap<>();
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserJpaRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public void registerNewUser(String username, String password, String role) {
-        if (users.containsKey(username)) {
+    public void registerNewUser(String username, String encryptedPassword, String role) {
+        if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("El usuario ya existe");
         }
-        users.put(username, new UserRecord(username, password, role));
+
+        UserEntity newUser = UserEntity.builder()
+                .username(username)
+                .password(encryptedPassword) // Ya debe venir encriptada desde el AuthService
+                .role(role)
+                .build();
+
+        userRepository.save(newUser);
     }
 
     public boolean validateCredentials(String username, String rawPassword) {
-        UserRecord user = users.get(username);
-        if (user == null) return false;
-        return passwordEncoder.matches(rawPassword, user.password);
+        return userRepository.findByUsername(username)
+                .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
+                .orElse(false);
     }
 
     public String getUserRole(String username) {
-        UserRecord user = users.get(username);
-        if (user == null) return null;
-        return user.role;
+        return userRepository.findByUsername(username)
+                .map(UserEntity::getRole)
+                .orElse(null);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserRecord user = users.get(username);
-        if (user == null) throw new UsernameNotFoundException("Usuario no encontrado");
-        return User.withUsername(user.username)
-                .password(user.password)
-                .roles(user.role.replace("ROLE_", ""))
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        return User.withUsername(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole().replace("ROLE_", "")) // Spring espera el rol sin el prefijo en este builder
                 .build();
-    }
-
-    @Autowired
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    private static class UserRecord {
-        String username;
-        String password;
-        String role;
-        UserRecord(String username, String password, String role) {
-            this.username = username;
-            this.password = password;
-            this.role = role;
-        }
     }
 }
