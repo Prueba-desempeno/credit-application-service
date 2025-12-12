@@ -10,5 +10,5 @@ public interface EvaluateCreditApplicationUseCase {
      * The implementation must be transactional and must persist the evaluation result.
      * @param creditApplicationId id of the application to evaluate
      */
-    void evaluate(Long creditApplicationId);
+    String evaluate(Long creditApplicationId);
 }

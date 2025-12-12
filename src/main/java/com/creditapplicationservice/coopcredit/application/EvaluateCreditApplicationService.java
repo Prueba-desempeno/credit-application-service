@@ -65,7 +65,7 @@ public class EvaluateCreditApplicationService implements EvaluateCreditApplicati
      */
     @Override
     @Transactional
-    public void evaluate(Long creditApplicationId) {
+    public String evaluate(Long creditApplicationId) {
         if (creditApplicationId == null) {
             throw new DomainException("Id de solicitud inválido.");
         }
@@ -114,6 +114,7 @@ public class EvaluateCreditApplicationService implements EvaluateCreditApplicati
         // 7) Update application status and persist
         application.setStatus(approved ? CreditApplication.ApplicationStatus.APROBADO : CreditApplication.ApplicationStatus.RECHAZADO);
         creditRepo.save(application);
+        return application.getStatus().name();
     }
 
     /**

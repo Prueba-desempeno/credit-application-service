@@ -30,8 +30,8 @@ public class CreditApplicationController {
 
     @PostMapping("/{id}/evaluate")
     public ResponseEntity<String> evaluate(@PathVariable Long id) {
-        evaluateCreditApplicationUseCase.evaluate(id);
-        return ResponseEntity.ok("Solicitud evaluada correctamente.");
+        String result = evaluateCreditApplicationUseCase.evaluate(id);
+        return ResponseEntity.ok("Solicitud evaluada correctamente. Resultado: " + result);
     }
 }
 
